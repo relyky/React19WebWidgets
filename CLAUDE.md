@@ -53,10 +53,11 @@ tests/            # greeting.test.tsx、counter.test.tsx（vitest）
 
 1. `src/Xxx.tsx` — 純 React 元件，持有業務邏輯
 2. `src/index.ts` — 用 `r2wc()` 包裝後呼叫 `customElements.define()`
-3. `vite.config.ts` — library mode，`external: ["react", "react-dom"]`
-4. 輸出：`dist/web-xxx.js`（ESM）與 `dist/web-xxx.umd.cjs`（UMD）
+3. `vite.config.ts` — library mode，ESM 格式，`define: { "process.env.NODE_ENV": JSON.stringify("production") }` 替換 Node.js 全域變數（避免瀏覽器 `process is not defined` 錯誤）
+4. 輸出：`dist/web-xxx.js`（ESM，React 已內嵌，可直接在非 Node 環境如 Blazor 使用）
 
 props 型別在 `r2wc()` 第二參數宣告，例如 `{ props: { name: "string" } }`。
+kebab-case HTML 屬性會自動對應到 camelCase React prop（如 `init-value` → `initValue`）。
 
 ## react-app 整合
 
