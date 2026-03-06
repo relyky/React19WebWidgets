@@ -1,5 +1,5 @@
-import React from "react";
+import type { FC } from "react";
 
-export const Greeting: React.FC<{ name: string }> = ({ name }) => {
+export const Greeting: FC<{ name: string }> = ({ name }) => {
   return <p>你好，{name}！</p>;
 };
