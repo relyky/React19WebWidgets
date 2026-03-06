@@ -27,6 +27,18 @@ pnpm test --run tests/greeting.test.tsx
 # 執行 E2E 測試（自動啟動 react-app dev server）
 pnpm playwright test
 
+# 啟動純 HTML demo 靜態伺服器（port 5174）
+# 開啟後瀏覽 http://localhost:5174/demo/index.html
+npx http-server . -p 5174 --cors
+
+# 關閉 demo 靜態伺服器（前台執行時）
+Ctrl+C
+# 關閉 demo 靜態伺服器（背景執行時，找出 port 5174 的 PID 並終止）
+powershell -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort 5174).OwningProcess -Force"
+
+# 執行純 HTML dist bundle 測試（自動啟動 http-server port 5174）
+pnpm test:demo
+
 # 啟動 Storybook（port 6006）
 pnpm storybook
 ```
@@ -43,7 +55,9 @@ packages/
 storybook/        # Greeting.stories.tsx、Counter.stories.tsx
 tests/            # greeting.test.tsx、counter.test.tsx（vitest）
                   # integration.test.tsx（vitest）
-                  # e2e.spec.ts（Playwright）
+                  # e2e.spec.ts（Playwright，react-app E2E）
+                  # demo.spec.ts（Playwright，純 HTML dist bundle 測試）
+demo/             # greeting.html、counter.html、index.html（純 HTML 測試頁面）
 .storybook/       # Storybook 設定（main.ts、preview.ts）
 ```
 
@@ -66,7 +80,9 @@ kebab-case HTML 屬性會自動對應到 camelCase React prop（如 `init-value`
 ## 測試架構
 
 - **vitest**：jsdom 環境，直接 import React 元件原始碼（`packages/*/src/`）測試，排除 `*.spec.ts`
-- **Playwright**：`webServer` 設定自動啟動 `react-app` dev server，E2E 測試跑在真實 Chromium
+- **Playwright（react-app）**：`playwright.config.ts`，`webServer` 自動啟動 `react-app` dev server，E2E 測試跑在真實 Chromium
+- **Playwright（demo）**：`playwright.demo.config.ts`，`webServer` 啟動 `http-server` port 5174 serving 根目錄，`tests/demo.spec.ts` 驗證 dist bundle 在純 HTML 環境的行為
+- **r2wc 預設 Light DOM**：`@r2wc/react-to-web-component` 不啟用 Shadow DOM，React 元件渲染到 Custom Element 的 Light DOM，Playwright 直接用 `web-greeting p`、`web-counter span` 等 CSS 選擇器存取，並搭配 `waitForSelector` 等待渲染
 
 ## 版本注意事項
 
